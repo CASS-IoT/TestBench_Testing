@@ -236,10 +236,12 @@ public class BusService extends Service implements Observer{
     class AboutBusListener extends BusListener {
         public void foundAdvertisedName(String name, short transport, String namePrefix){
             Log.i(TAG, "BusListener(): Found new Advertised Name");
+            //todo: Add found name to UI list
             //wknListAdapter.add(name);
         }
         public void lostAdvertisedName(String name, short transport, String namePrefix){
             Log.i(TAG, "BusListener(): Lost Advertised Name");
+            //todo: Remove found name from UI list
             //wknListAdapter.remove(name);
         }
     }
@@ -252,7 +254,8 @@ public class BusService extends Service implements Observer{
      */
     class TestAboutListener implements AboutListener {
         public void announced(final String busName, int version, short sessionPort, AboutObjectDescription[] aboutObjectDescriptions, Map<String, Variant> aboutData) {
-            Log.i(TAG, "AboutListener(): New Bus Found");
+            //Todo: Join announced interface, pass data-gathering to onJoinSessionListener
+            /*Log.i(TAG, "AboutListener(): New Bus Found");
             Mutable.IntegerValue sessionId = new Mutable.IntegerValue();
             final AboutProxy newAbout = new AboutProxy(mBus, busName, sessionId.value);
             mActivity.addFoundAbout(busName);
@@ -270,13 +273,13 @@ public class BusService extends Service implements Observer{
                  * accomplished by the use of a monitor on the ChatApplication as
                  * exemplified by the synchronized attribute of the removeFoundChannel
                  * method there.
-                 */
+                 *//*
                 public void sessionLost(int sessionId, int reason) {
                     Log.i(TAG, "BusListener.sessionLost(sessionId=" + sessionId + ",reason=" + reason + ")");
                     mActivity.aboutProxyList.remove(newAbout);
                     mActivity.removeFoundAbout(busName);
                 }
-            }, mAboutUpdateListener, this);
+            }, mAboutUpdateListener, this); */
 
         }
     }
@@ -288,12 +291,8 @@ public class BusService extends Service implements Observer{
     class aboutUpdateListener extends OnJoinSessionListener {
         @Override
         public void onJoinSession(Status status, int sessionId, SessionOpts opts, Object context){
-            /**
-             * Need to implement code that somehow identifies a particular AboutProxy object as being connected or not
-             */
-
-            //AboutProxy newAboutData = new AboutProxy(mBus, tempBusName, sessionId);
-            //aboutListAdapter.add(newAboutData);
+            //Todo: request about data, create new AboutData object, add that to array of AboutData objects
+            //Todo: disconnect from session to keep things simple
         }
     }
 
@@ -741,6 +740,7 @@ public class BusService extends Service implements Observer{
      * remote session.
      */
     private void doLeaveSession() {
+        //Todo: modify doLeaveSession() to work with the rewritten doJoinSession() method.
         Log.i(TAG, "doLeaveSession()");
         if (mJoinedToSelf == false) {
             mBus.leaveSession(mUseSessionId);

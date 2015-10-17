@@ -21,7 +21,7 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements edu.oregonstate.cass.iot.testapp.Observable{
-
+//Todo: offload UI changes to UI_Manager class. Hopefully will improve migration to fragment based application.
 //--------------//Globals//-------------------//
     private static final String TAG = "testapp"; //Tag for messages logged by this class
     public List<AboutProxy> aboutProxyList = new ArrayList<>(); //List of About Proxy objects for showing detailed info later
@@ -257,6 +257,9 @@ public class MainActivity extends AppCompatActivity implements edu.oregonstate.c
     }
 
 
+
+//--------------//Application Lifecycle Handling//-------------------//
+    public class About
 
 //--------------//Status Strings//-------------------//
     /**
