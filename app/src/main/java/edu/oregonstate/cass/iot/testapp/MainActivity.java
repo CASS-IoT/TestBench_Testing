@@ -1,6 +1,5 @@
 package edu.oregonstate.cass.iot.testapp;
 
-import android.content.ComponentName;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -25,9 +24,8 @@ public class MainActivity extends AppCompatActivity{
     private ArrayAdapter<String> aboutListAdapter;
     public static MainActivity activity;
     public static String PACKAGE_NAME; //Unique bus name
-    public static String NAME_PREFIX = "org.alljoyn";
-    public static String[] ABOUT_NAMES = {"About"};
-    ComponentName mRunningService = null; //Keep track of the background service so we can kill it on quit().
+    public static String NAME_PREFIX = "org.alljoyn.About";
+    public static String[] ABOUT_NAMES = {"org.alljoyn.*"};
 
 
 
@@ -44,12 +42,9 @@ public class MainActivity extends AppCompatActivity{
         aboutListAdapter = new ArrayAdapter<String>(this, android.R.layout.test_list_item);
         aboutList.setAdapter(aboutListAdapter);
 
+        mBus.connect();
         mBus.registerBusListener(mBusListener);
         mBus.registerAboutListener(mTestListener);
-        mBus.connect();
-        //mBus.registerSignalHandlers(this);
-        //mBus.useOSLogging(true);
-        //mBus.setDebugLevel("ALLJOYN_JAVA", 10);
 
         mBus.findAdvertisedName(NAME_PREFIX);
         mBus.whoImplements(null);
@@ -107,7 +102,7 @@ public class MainActivity extends AppCompatActivity{
      * clients.  Pretty much all communiation with AllJoyn is going to go through
      * this obejct.
      */
-    private BusAttachment mBus  = new BusAttachment(MainActivity.PACKAGE_NAME, BusAttachment.RemoteMessage.Receive);
+    private BusAttachment mBus  = new BusAttachment(PACKAGE_NAME, BusAttachment.RemoteMessage.Receive);
     /**
      * An instance of an AllJoyn bus listener that knows what to do with
      * foundAdvertisedName and lostAdvertisedName notifications.  Although
@@ -119,7 +114,7 @@ public class MainActivity extends AppCompatActivity{
     /**
      * Instance of the custom About Listener class
      */
-    public TestAboutListener mTestListener = new TestAboutListener();
+    private TestAboutListener mTestListener = new TestAboutListener();
 
 
 
@@ -129,21 +124,25 @@ public class MainActivity extends AppCompatActivity{
      */
     class AboutBusListener extends BusListener {
 
-        public void foundAdvertisedName(final String name, short transport, String namePrefix){
+        public void foundAdvertisedName(final String name, final short transport, final String namePrefix){
             Log.i(TAG, "BusListener(): Found new Advertised Name: "+name);
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    aboutListAdapter.add(name + " buslistener");
+                    aboutListAdapter.add(name + " - BusListener reported name");
+                    aboutListAdapter.add(transport + " - BusListener reported transport");
+                    aboutListAdapter.add(namePrefix + " - BusListener reported namePrefix");
                 }
             });
         }
-        public void lostAdvertisedName(final String name, short transport, String namePrefix){
+        public void lostAdvertisedName(final String name, final short transport, final String namePrefix){
             Log.i(TAG, "BusListener(): Lost Advertised Name: "+name);
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    aboutListAdapter.remove(name + " buslistener");
+                    aboutListAdapter.remove(name + " - BusListener reported name");
+                    aboutListAdapter.remove(transport + " - BusListener reported transport");
+                    aboutListAdapter.remove(namePrefix + " - BusListener reported namePrefix");
                 }
             });
         }
@@ -155,23 +154,17 @@ public class MainActivity extends AppCompatActivity{
      * objects so we can get the contents of the About Announcement later when the user
      * selects that particular announcement.
      */
-    class TestAboutListener implements AboutListener {
-        @Override
+    public class TestAboutListener implements AboutListener {
         public void announced(final String busName, int version, short sessionPort, AboutObjectDescription[] aboutObjectDescriptions, Map<String, Variant> aboutData) {
             Log.i(TAG, "AboutListener(): Found About Interface: "+busName);
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    aboutListAdapter.add(busName + " buslistener");
+                    aboutListAdapter.add(busName + " aboutlistener");
                 }
             });
         }
     }
-
-
-
-//--------------//Bus Attachment Connection and Start//-------------------//
-
 
 //--------------//Misc.//-------------------//
     /**
