@@ -25,7 +25,8 @@ public class MainActivity extends AppCompatActivity{
     private ArrayAdapter<String> aboutListAdapter;
     public static MainActivity activity;
     public static String PACKAGE_NAME; //Unique bus name
-    public static String NAME_PREFIX = "org.alljoyn.About";
+    public static String NAME_PREFIX = "org.alljoyn";
+    public static String[] ABOUT_NAMES = {"About"};
     ComponentName mRunningService = null; //Keep track of the background service so we can kill it on quit().
 
 
@@ -47,29 +48,11 @@ public class MainActivity extends AppCompatActivity{
         mBus.registerAboutListener(mTestListener);
         mBus.connect();
         //mBus.registerSignalHandlers(this);
-        mBus.useOSLogging(true);
-        mBus.setDebugLevel("ALLJOYN_JAVA", 7);
+        //mBus.useOSLogging(true);
+        //mBus.setDebugLevel("ALLJOYN_JAVA", 10);
 
-        //mBus.findAdvertisedName(NAME_PREFIX);
-
-        /*aboutList.setOnItemClickListener(new ListView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final ListView aboutDetail = (ListView) findViewById(R.id.aboutDetail);
-                ArrayAdapter<AboutObjectDescription> aboutDetailAdapter = new ArrayAdapter<AboutObjectDescription>(activity, android.R.layout.test_list_item);
-                aboutDetail.setAdapter(aboutDetailAdapter);
-
-                try {
-                    AboutObjectDescription[] aboutInfo = ((AboutProxy) parent.getItemAtPosition(position)).getObjectDescription();
-                    for (AboutObjectDescription field : aboutInfo) {
-                        aboutDetailAdapter.add(field);
-                    }
-                } catch (BusException e) {
-                    e.printStackTrace();
-                }
-                setContentView(R.layout.about_detail);
-            }
-        });*/
+        mBus.findAdvertisedName(NAME_PREFIX);
+        mBus.whoImplements(null);
 
     }
     @Override
@@ -136,7 +119,7 @@ public class MainActivity extends AppCompatActivity{
     /**
      * Instance of the custom About Listener class
      */
-    private TestAboutListener mTestListener = new TestAboutListener();
+    public TestAboutListener mTestListener = new TestAboutListener();
 
 
 
@@ -145,8 +128,9 @@ public class MainActivity extends AppCompatActivity{
      * Custom version of the BusListener that is only set up to handle About Advertisements
      */
     class AboutBusListener extends BusListener {
+
         public void foundAdvertisedName(final String name, short transport, String namePrefix){
-            Log.i(TAG, "BusListener(): Found new Advertised Name");
+            Log.i(TAG, "BusListener(): Found new Advertised Name: "+name);
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -155,7 +139,7 @@ public class MainActivity extends AppCompatActivity{
             });
         }
         public void lostAdvertisedName(final String name, short transport, String namePrefix){
-            Log.i(TAG, "BusListener(): Lost Advertised Name");
+            Log.i(TAG, "BusListener(): Lost Advertised Name: "+name);
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -172,8 +156,9 @@ public class MainActivity extends AppCompatActivity{
      * selects that particular announcement.
      */
     class TestAboutListener implements AboutListener {
+        @Override
         public void announced(final String busName, int version, short sessionPort, AboutObjectDescription[] aboutObjectDescriptions, Map<String, Variant> aboutData) {
-            Log.i(TAG, "AboutListener(): Found About Interface");
+            Log.i(TAG, "AboutListener(): Found About Interface: "+busName);
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
